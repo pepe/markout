@@ -1,3 +1,4 @@
+require 'cgi'
 require 'rdiscount'
 require 'erb'
 require 'base64'

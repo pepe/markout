@@ -41,10 +41,10 @@
     <div id="revision_<%= revision.sha %>" class="revision">
       <h4><%= revision.date.strftime('%d/%m/%Y %H:%M') %> : <%= h(revision.subject) %> (<%= revision.author %>)</h4>
       <div class="detail">
-      <% if revision.message %><%= CGI.escapeHTML(revision.message(:format => :html)) %><% end %>
+      <% if revision.message %><%= revision.message(:format => :html) %><% end %>
       <pre>
 <code class="diff">
-<%= CGI.escapeHTML(revision.diff(:format => 'inline')) %>
+<%= revision.diff(:format => 'inline') %>
 </code>
       </pre>
       </div><!-- /detail -->

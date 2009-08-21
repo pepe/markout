@@ -8,6 +8,7 @@ module Markout
     def test_should_initialize_with_repo_and_commit
       assert_nothing_raised do
         @revision = Markout::Revision.new( 
+          fixtures_path.join('empty.txt'),
           Grit::Repo.new(fixtures_path.join('empty_repository__dot__git'), :is_bare => true), 
           fake_grit_commit )
       end

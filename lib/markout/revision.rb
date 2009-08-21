@@ -7,13 +7,18 @@ module Markout
 
     attr_reader :sha, :date, :author, :subject
 
-    def initialize(repo, commit)
+    def initialize(path, repo, commit)
       @repo   = repo
       @sha    = commit.sha
       @date   = commit.date
       @author = commit.author.to_s
       @subject, @message = parse_commit_message(commit)
-      @diff   = commit.show.first.diff || ''
+      @path   = path
+      @diff   = if right_diff = commit.show.detect {|diff| diff.a_path == @path}
+                   CGI.escapeHTML(right_diff.diff)
+                else
+                  ''
+                end
     end
 
     def diff(options={})
@@ -51,9 +56,11 @@ module Markout
 
     def inline_diff
       # FIXME: Cleanup
-      output  = %x[cd #{@repo.path} && git show --no-prefix --ignore-space-at-eol --color-words #{@sha} 2>&1]
+      output  = %x[cd #{@repo.path} && git show --no-prefix --ignore-space-at-eol --color-words #{@sha} -- #{@path} 2>&1]
+      puts output
+      puts '=============================='
       if $?.success?
-        return convert_bash_color_codes( output.gsub(/(.*)@@(.*)/m, '\2') )
+        return convert_bash_color_codes( output )
       else
         return short_diff
       end
@@ -61,7 +68,10 @@ module Markout
 
     # Lifted from Integrity (www.integrityapp.com), (c) foca & sr
     def convert_bash_color_codes(string)
+      string = CGI.escapeHTML(string)
       string.
+        gsub(/.*index 0000000.*$/m, '').
+        gsub(/(.*)@@(.*)/m, '\2').
         gsub(/\e\[31m([^\e]*)\e\[m/, '<del>\1</del>').
         gsub(/\e\[32m([^\e]*)\e\[m/, '<ins>\1</ins>').
         gsub("\e[m", '')

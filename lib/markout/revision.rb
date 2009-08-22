@@ -57,8 +57,6 @@ module Markout
     def inline_diff
       # FIXME: Cleanup
       output  = %x[cd #{@repo.path} && git show --no-prefix --ignore-space-at-eol --color-words #{@sha} -- #{@path} 2>&1]
-      puts output
-      puts '=============================='
       if $?.success?
         return convert_bash_color_codes( output )
       else
